@@ -1,110 +1,50 @@
-import { Input } from "./game/input";
-import { State } from "./game/state";
+export class Controller {
+  static keyPresses: number = 0;
 
-export class CanvasController {
-  static canvas: HTMLCanvasElement;
-  static context: CanvasRenderingContext2D;
-
-  static info: HTMLElement;
-
-  static lastFrame: number = 0;
-  static lastServerSend: number = 0;
+  static initialized: boolean = false;
+  static bellPressed: boolean = false;
 
   static async init() {
-    if (this.canvas) {
-      console.warn("CanvasController.init already called");
+    if (this.initialized) {
       return;
     }
 
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    const info = document.getElementById("info") as HTMLCanvasElement;
-    const context = canvas?.getContext("2d");
-    if (!context) {
-      console.error("Failed to get 2d context");
-      return;
-    }
+    this.initialized = true;
 
-    CanvasController.canvas = canvas;
-    CanvasController.context = context;
+    const lines = Array.from(document.getElementsByClassName("narrative-line"));
+    const openBell = document.getElementById("bell-open");
+    const closedBell = document.getElementById("bell-closed");
+    const ringAudio: HTMLAudioElement = document.getElementById(
+      "bell-ring-audio"
+    ) as HTMLAudioElement;
 
-    info.innerHTML = "Loading connection to server...";
-    const timeout = setTimeout(
-      () =>
-        (info.innerHTML += "\nThis can take up to 50 seconds on initial load.")
-    );
-    await WebsocketHandler.init();
+    lines.forEach((line, index) => {
+      setTimeout(() => {
+        line.classList.add("visible");
+      }, index * 2000);
+    });
 
-    clearTimeout(timeout);
-    info.innerHTML = "Connected!";
+    document.addEventListener("keydown", () => {
+      if (!this.bellPressed) {
+        ++this.keyPresses;
+        console.log(this.keyPresses);
 
-    Input.setInputListeners();
+        openBell?.classList.add("invisible");
+        closedBell?.classList.remove("invisible");
+        this.bellPressed = true;
 
-    this.main();
+        const newAudio = new Audio("/ding.wav");
+        newAudio.load();
+        newAudio.play();
+
+        setTimeout(() => {
+          openBell?.classList.remove("invisible");
+          closedBell?.classList.add("invisible");
+          this.bellPressed = false;
+        }, 50);
+      }
+    });
   }
 
-  static main() {
-    if (!State.isGameComplete) {
-      requestAnimationFrame(CanvasController.main);
-    }
-
-    if (Date.now() - CanvasController.lastFrame > 16) {
-      CanvasController.lastFrame = Date.now();
-
-      CanvasController.redraw();
-
-      Input.doInputResponse();
-
-      for (const player of Object.values(State.players)) {
-        if (player) {
-          player.update();
-        }
-      }
-
-      if (
-        Date.now() - CanvasController.lastServerSend > 16 &&
-        WebsocketHandler.canSend
-      ) {
-        CanvasController.lastServerSend = Date.now();
-        State.sendStateUpdate();
-      }
-    }
-  }
-
-  static redraw() {
-    if (!State.localPlayerId) {
-      throw new Error("No local player ID");
-    }
-
-    CanvasController.context.clearRect(
-      0,
-      0,
-      CanvasController.canvas.width,
-      CanvasController.canvas.height
-    );
-
-    const localPlayer = State.players[State.localPlayerId];
-
-    if (!localPlayer) {
-      throw new Error("Local player does not exist?");
-    }
-
-    const friendlyTeam = localPlayer.team;
-    const enemyTeam = friendlyTeam === Team.GREEN ? Team.PURPLE : Team.GREEN;
-
-    State.spills[friendlyTeam].draw(CanvasController.context);
-    State.spills[enemyTeam].draw(CanvasController.context);
-
-    for (const player of Object.values(State.players)) {
-      if (!player) {
-        continue;
-      }
-
-      if (player.isLocal) {
-        continue;
-      }
-      player.draw(CanvasController.context);
-    }
-
-    localPlayer.draw(CanvasController.context);
-  }
+  ringBell() {}
 }

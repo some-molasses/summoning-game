@@ -1,12 +1,17 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { CanvasController } from "./main";
-import { CONFIG } from "./config";
+import { Controller } from "./main";
+import Image from "next/image";
+
+const BELL_SIZE = {
+  w: 100,
+  h: 100,
+};
 
 export default function Home() {
   useEffect(() => {
-    CanvasController.init();
+    Controller.init();
   }, []);
 
   return (
@@ -18,49 +23,63 @@ export default function Home() {
       }}
     >
       <h1 style={{ marginBottom: "20px" }}>summoning</h1>
+      <p id="subtitle" style={{ marginBottom: "20px" }}>
+        This game made by{" "}
+        <span className="highlight">
+          I Was At The Ontario Universities Fair All Weekend Studios
+        </span>
+      </p>
       <div id="game-content">
-        <p style={{ marginTop: "10px" }}>
-          Remaining time: <span id="remaining-time">-spreads.vercel.app</span>
+        {/* <p className="narrative-line">Picture this...</p>
+        <p className="narrative-line">You&apos;re at a pizza restaurant...</p>
+        <p className="narrative-line">
+          But there&apos;s no one at the counter...
         </p>
-        <p style={{ margin: "10px" }} id="messages"></p>
-        <canvas
-          id="canvas"
-          width={CONFIG.WIDTH}
-          height={CONFIG.HEIGHT}
-          style={{ border: "1px solid #d3d3d3", backgroundColor: "white" }}
-        >
-          Your browser does not support the HTML canvas tag.
-        </canvas>
-        <div>
-          <span>Scores</span>
-          <div id="score-wrapper">
-            <div className="score-bar-back">
-              <div className="score-bar" id="green-score-bar"></div>
-            </div>
-            <div className="score-bar-back">
-              <div className="score-bar" id="purple-score-bar"></div>
-            </div>
+        <p className="narrative-line">
+          Alas! Your pizza dreams are almost vanquished...
+        </p>
+        <p className="narrative-line">
+          But fear not! The means of salvation stand before you...
+        </p>
+        <p className="narrative-line">In the form of a silver bell...</p>
+        <p className="narrative-line instruction">
+          [Press any key to ring the bell]
+        </p> */}
+
+        <div id="frame" style={{ position: "relative" }}>
+          <Image
+            width="800"
+            height="600"
+            src="/red-swan.jpg"
+            alt="the inside of red swan pizza"
+            id="red-swan"
+          />
+
+          <div
+            id="bells"
+            style={{ position: "absolute", left: "700px", top: "460px" }}
+          >
+            <Image
+              width={BELL_SIZE.w}
+              height={BELL_SIZE.h}
+              src="/bell_open.png"
+              alt="a bell that has not been pressed"
+              id="bell-open"
+            />
+            <Image
+              width={BELL_SIZE.w}
+              height={BELL_SIZE.h}
+              src="/bell_closed.png"
+              alt="a bell that has been pressed"
+              className="invisible"
+              id="bell-closed"
+            />
           </div>
         </div>
-        <div style={{ paddingBottom: "8px" }}>
-          <span id="info"></span>
-        </div>
-      </div>
-      <div id="endgame-screen" style={{ display: "none" }}>
-        <h2>Game over!</h2>
-        <p>Refresh your screen to play again! :)</p>
-        <div
-          style={{
-            padding: "2em",
-            gap: "1em",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <div id="green-score"></div>
-          <div id="purple-score"></div>
-          <div id="winner-text"></div>
-        </div>
+        <audio style={{ display: "none" }} id="bell-ring-audio">
+          <source src="/ding.wav" type="audio/wav" />
+          Your browser does not support the audio element.
+        </audio>
       </div>
     </div>
   );
