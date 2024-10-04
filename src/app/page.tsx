@@ -46,7 +46,10 @@ export default function Home() {
           [Press any key to ring the bell]
         </p> */}
 
-        <div id="frame" style={{ position: "relative" }}>
+        <div
+          id="frame"
+          style={{ position: "relative", width: "min-content", margin: "auto" }}
+        >
           <Image
             width="800"
             height="600"
@@ -57,7 +60,7 @@ export default function Home() {
 
           <div
             id="bells"
-            style={{ position: "absolute", left: "700px", top: "460px" }}
+            style={{ position: "absolute", left: "630px", top: "460px" }}
           >
             <Image
               width={BELL_SIZE.w}
@@ -74,6 +77,13 @@ export default function Home() {
               className="invisible"
               id="bell-closed"
             />
+          </div>
+
+          <div
+            id="score-tracker"
+            style={{ position: "absolute", top: "20px", left: "20px" }}
+          >
+            <span id="score">100</span>
           </div>
         </div>
         <audio style={{ display: "none" }} id="bell-ring-audio">

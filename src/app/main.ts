@@ -4,6 +4,13 @@ export class Controller {
   static initialized: boolean = false;
   static bellPressed: boolean = false;
 
+  static _elements: {
+    openBell: HTMLElement;
+    closedBell: HTMLElement;
+    ringAudio: HTMLAudioElement;
+    score: HTMLElement;
+  } | null = null;
+
   static async init() {
     if (this.initialized) {
       return;
@@ -12,11 +19,6 @@ export class Controller {
     this.initialized = true;
 
     const lines = Array.from(document.getElementsByClassName("narrative-line"));
-    const openBell = document.getElementById("bell-open");
-    const closedBell = document.getElementById("bell-closed");
-    const ringAudio: HTMLAudioElement = document.getElementById(
-      "bell-ring-audio"
-    ) as HTMLAudioElement;
 
     lines.forEach((line, index) => {
       setTimeout(() => {
@@ -25,26 +27,44 @@ export class Controller {
     });
 
     document.addEventListener("keydown", () => {
-      if (!this.bellPressed) {
-        ++this.keyPresses;
-        console.log(this.keyPresses);
-
-        openBell?.classList.add("invisible");
-        closedBell?.classList.remove("invisible");
-        this.bellPressed = true;
-
-        const newAudio = new Audio("/ding.wav");
-        newAudio.load();
-        newAudio.play();
-
-        setTimeout(() => {
-          openBell?.classList.remove("invisible");
-          closedBell?.classList.add("invisible");
-          this.bellPressed = false;
-        }, 50);
-      }
+      this.ringBell();
     });
   }
 
-  ringBell() {}
+  static get elements() {
+    if (!this._elements) {
+      this._elements = {
+        openBell: document.getElementById("bell-open")!,
+        closedBell: document.getElementById("bell-closed")!,
+        ringAudio: document.getElementById(
+          "bell-ring-audio"
+        ) as HTMLAudioElement,
+        score: document.getElementById("score")!,
+      };
+    }
+
+    return this._elements;
+  }
+
+  static ringBell() {
+    if (!this.bellPressed) {
+      ++this.keyPresses;
+
+      this.elements.score.innerHTML = this.keyPresses.toString();
+
+      this.elements.openBell.classList.add("invisible");
+      this.elements.closedBell.classList.remove("invisible");
+      this.bellPressed = true;
+
+      const newAudio = new Audio("/ding.wav");
+      newAudio.load();
+      newAudio.play();
+
+      setTimeout(() => {
+        this.elements.openBell.classList.remove("invisible");
+        this.elements.closedBell.classList.add("invisible");
+        this.bellPressed = false;
+      }, 50);
+    }
+  }
 }
