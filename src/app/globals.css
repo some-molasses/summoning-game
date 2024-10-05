@@ -91,6 +91,9 @@ body {
   position: absolute;
 }
 
+#score.score-0x {
+  font-size: 1.2em;
+}
 #score.score-1x {
   font-size: 1.2em;
 }

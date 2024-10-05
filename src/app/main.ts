@@ -104,6 +104,11 @@ export class Controller {
 
     const interval = Math.ceil(ENDGAME_SCORE / 10);
 
+    // accelerate user input feedback
+    if (this.keyPresses === 20) {
+      this.elements.score.classList.add(`score-0x`);
+    }
+
     if (this.keyPresses % interval === 0) {
       const multiple = this.keyPresses / interval;
       this.elements.score.classList.remove(`score-${multiple - 1}x`);
